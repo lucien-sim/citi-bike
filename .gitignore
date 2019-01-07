@@ -1,0 +1,4 @@
+/data/*.zip
+/data/station_counts
+download_citibike_data.ipynb
+/.ipynb_checkpoints
