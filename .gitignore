@@ -1,4 +1,12 @@
 /data/*.zip
-/data/station_counts
+/data/dock_counts
 download_citibike_data.ipynb
 /.ipynb_checkpoints
+/__pycache__
+initialize_citi_bike_database.sql
+fill_citi_bike_database.ipynb
+external_variables.py
+out.txt
+/figs/gifs
+/old_stuff
+/data/nyc_streets.shp
