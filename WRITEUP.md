@@ -6,7 +6,7 @@
 
 CitiBike is New York City's dock-based bike share program. Dock-based programs, CitiBike included, face serious challenges related to bike distribution: in the morning, bikes tend to migrate from residential to commerical areas, leading to a surplus of bikes in commerical areas and a scarcity of bikes inresidential areas. This phenomenon is clearly visible in the following animation, which shows the fraction of docks that are filled at each docking station in NYC, at the beginning of each hour (EST) on May 3rd, 2018. Green dots represent docking stations that have many bikes available, while red dots represent stations that have very few bikes available. 
 
-<img src=./figs/frac_full.gif width="450" height="700" />
+<img src=./figs/frac_full.gif width="450" height="650" />
 <!-- <img src=./figs/full_empty.gif width="600" height="700" /> -->
 
 Looking at the animation you'll notice that, during business hours, most stations in commerical areas (eg. Financial District, Midtown, Downtown Brooklyn) are nearly or completely full, while most stations in some residential areas (eg. Upper East Side, Upper West Side, East Village, parts of Brooklyn) are nearly or completely empty. The opposite is true during other parts of the day. These shifts in bike distribution make it frustrating for some customers to find bikes when they begin their trips and find open spots for bikes when they finish their trips, and might be discouraging people from participating in the CitiBike program. 
