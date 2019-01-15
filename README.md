@@ -40,4 +40,4 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-* Thanks to Justin Tyndall for collecting the docking station data from CitiBike online streams. Data available at: [The Open Bus](https://www.theopenbus.com/). 
+* Thanks to Justin Tyndall for collecting the data from CitiBike online data streams. Data available from: [The Open Bus](https://www.theopenbus.com/). 

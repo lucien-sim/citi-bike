@@ -1,9 +1,9 @@
 
 # coding: utf-8
 
-# # Initialize and populate citi_bike SQL database
+# # Initialize and fill citi_bike MySQL database
 
-# In[1]:
+# In[3]:
 
 
 import pandas as pd
@@ -12,15 +12,14 @@ import pickle
 data_path = './data'
 
 
-# # 1. Create the database, create a table to hold data
+# # 1. Create the database, create a table to hold dock counts
 # * DATABASE NAME: 'citi_bike'
 # * TABLE NAME: 'dock_counts'
 
-# In[2]:
+# In[4]:
 
 
 # Connect to database with sqlalchemy package. 
-import mysql.connector
 import sqlalchemy
 from external_variables import sql_un,sql_pwd
 database_username = sql_un
@@ -30,10 +29,12 @@ conn_alchemy      = sqlalchemy.create_engine('mysql+mysqlconnector://{0}:{1}@{2}
                                              format(database_username, database_password, 
                                                     database_ip)).connect()
 
-# Create database, create table. If database already exists, means we've already created it. 
-# Instead of raising an error, we'll switch into database and move on. 
+# If citi_bike database already exists. If not, create it, use it, create dock_counts table. 
 trans = conn_alchemy.begin()
 try:
+    r2=conn_alchemy.execute("USE citi_bike")
+    trans.commit()
+except:
     r1=conn_alchemy.execute("CREATE DATABASE citi_bike")
     r2=conn_alchemy.execute("USE citi_bike")
     r3=conn_alchemy.execute("""
@@ -52,14 +53,10 @@ try:
                             """)
     trans.commit()
     
-except:
-    r2=conn_alchemy.execute("USE citi_bike")
-    trans.commit()
-    
     
 
 
-# # 2. Fill the database with station count data
+# # 2. Fill dock_counts with dock count data
 # The cell below accomplishes two important tasks: 
 # * Add data to the dock_counts table in the citi_bike database, using pandas to_sql function. For each dock/time for which data is available, I save:  
 #     * dock_id: ID's the CitiBike dock station
@@ -134,14 +131,89 @@ for fname in count_fnames:
     from general_functions import save_pkl
     save_pkl(os.path.join(data_path,'dock_dict.pkl'),dock_dict)
         
+
+
+# # 3. Add second table to hold info on the docks
+# * Add new table dock_info to hold this data. Columns: 
+#   * dock_id: dock ID 
+#   * dock_name: name of dock
+#   * lat: latitude
+#   * lon: longitude
+#   * PRIMARY KEY: dock_id
+# * Then fill the table using data from dock_dict
+# * And add a FOREIGN KEY to dock_counts linking each dock_id in dock_counts to the corresponding row in the dock_info table. 
+
+# In[10]:
+
+
+# Create new table to hold info on each dock_id 
+
+sql_create_docks = """CREATE TABLE dock_info
+                    (
+                        dock_id INT NOT NULL PRIMARY KEY,
+                        dock_name VARCHAR(75) NOT NULL,
+                        lat DEC(8,5) NOT NULL,
+                        lon DEC(8,5) NOT NULL
+                    );
+                   """
+
+trans = conn_alchemy.begin()
+try:
+    r1 = conn_alchemy.execute(sql_create_docks)
+    trans.commit()
+except:
+    trans.rollback()
+    #raise
+
+    
+# Enter dock_info into new table. 
+from general_functions import save_pkl, load_pkl
+dock_dict = load_pkl(os.path.join(data_path,'dock_dict.pkl'))
+
+dock_ids,dock_name,dock_lat,dock_lon = [],[],[],[]
+for dock_id in dock_dict.keys():
+    dock_ids.append(int(dock_id))
+    dock_name.append(dock_dict[dock_id]['dock_name'])
+    dock_lat.append(dock_dict[dock_id]['lat'])
+    dock_lon.append(dock_dict[dock_id]['lon'])
+    
+dock_info = pd.DataFrame({
+    'dock_id': dock_ids,
+    'dock_name': dock_name,
+    'lat': dock_lat,
+    'lon': dock_lon
+})
+
+try: 
+    dock_info.to_sql(name='dock_info',con=conn_alchemy,if_exists='append',index=False)
+except: 
+    print('Issue adding dock information to dock_info database table.')
+    raise
+    
+    
+# Add foreign key to dock_counts table. 
+sql_add_fk = """ALTER TABLE dock_counts
+                ADD CONSTRAINT dock_info_dock_id_fk
+                FOREIGN KEY (dock_id)
+                REFERENCES dock_info (dock_id);
+             """
+trans = conn_alchemy.begin()
+try:
+    r1 = conn_alchemy.execute(sql_add_fk)
+    trans.commit()
+except:
+    trans.rollback()
+    raise
+
 # Close database connection. 
 conn_alchemy.close()
 
 
-# In[13]:
+# In[1]:
 
 
-# Separately create dictionary of dock_id -> dock_name, lat, lon. 
+# Separately create dictionary of dock_id -> dock_name, lat, lon. I used this when the code 
+# in section 2 crashed. 
 
 #count_fnames = os.listdir(os.path.join(data_path,'dock_counts'))
 #dock_dict = {}
