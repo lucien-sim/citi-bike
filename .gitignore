@@ -1,5 +1,6 @@
 /data/*.zip
 /data/dock_counts
+/data/dock_scores/*
 download_citibike_data.ipynb
 /.ipynb_checkpoints
 /__pycache__

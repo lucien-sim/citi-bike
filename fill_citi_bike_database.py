@@ -11,15 +11,7 @@ import os
 import pickle
 data_path = './data'
 
-
-# # 1. Create the database, create a table to hold dock counts
-# * DATABASE NAME: 'citi_bike'
-# * TABLE NAME: 'dock_counts'
-
-# In[4]:
-
-
-# Connect to database with sqlalchemy package. 
+# Connect to database with sqlalchemy library. 
 import sqlalchemy
 from external_variables import sql_un,sql_pwd
 database_username = sql_un
@@ -29,7 +21,15 @@ conn_alchemy      = sqlalchemy.create_engine('mysql+mysqlconnector://{0}:{1}@{2}
                                              format(database_username, database_password, 
                                                     database_ip)).connect()
 
-# If citi_bike database already exists. If not, create it, use it, create dock_counts table. 
+
+# ## 1. Create the database, create a table to hold dock counts
+# * DATABASE NAME: 'citi_bike'
+# * TABLE NAME: 'dock_counts'
+
+# In[4]:
+
+
+# If citi_bike database already exists, use it. If not, create it, use it, create dock_counts table. 
 trans = conn_alchemy.begin()
 try:
     r2=conn_alchemy.execute("USE citi_bike")
@@ -53,10 +53,9 @@ except:
                             """)
     trans.commit()
     
-    
 
 
-# # 2. Fill dock_counts with dock count data
+# ## 2. Fill dock_counts with dock count data
 # The cell below accomplishes two important tasks: 
 # * Add data to the dock_counts table in the citi_bike database, using pandas to_sql function. For each dock/time for which data is available, I save:  
 #     * dock_id: ID's the CitiBike dock station
@@ -68,7 +67,7 @@ except:
 #     * status_key: not sure what this means so I saved it
 # * Store information on all the docks in dock_dict. In dock_dict, keys are str(dock_id), entries are separate dicts that hold the full name, latitude, and longitude of each dock. I'll need all this information for mapping, but don't want to store it millions of times in the database. 
 
-# In[3]:
+# In[ ]:
 
 
 def create_timestamp_citibike(orig_date,orig_hr,orig_min,pm): 
@@ -133,7 +132,7 @@ for fname in count_fnames:
         
 
 
-# # 3. Add second table to hold info on the docks
+# ## 3. Add second table to hold info on the docks
 # * Add new table dock_info to hold this data. Columns: 
 #   * dock_id: dock ID 
 #   * dock_name: name of dock
@@ -207,40 +206,4 @@ except:
 
 # Close database connection. 
 conn_alchemy.close()
-
-
-# In[1]:
-
-
-# Separately create dictionary of dock_id -> dock_name, lat, lon. I used this when the code 
-# in section 2 crashed. 
-
-#count_fnames = os.listdir(os.path.join(data_path,'dock_counts'))
-#dock_dict = {}
-#use_cols = ['dock_id','dock_name','_lat','_long']
-#dtypes = str #{'dock_id': int, 'dock_name': str, '_lat': float, '_long': float}
-#
-#for fname in count_fnames[12:]: 
-#    
-#    fpathname = os.path.join(data_path,'dock_counts',fname)
-#    
-#    year = print(fpathname[-11:-7])
-#    if year == '2015':
-#        continue
-#    
-#    print(fpathname)
-#    
-#    # Read dock counts from csv in chunks
-#    for monthly_data in pd.read_csv(fpathname,sep='\t',dtype=dtypes,usecols=use_cols,chunksize=10**4):
-#        
-#        # Add any new docks to dock_dict
-#        unique_docks = monthly_data['dock_id'].unique()
-#        for dock in unique_docks: 
-#            if str(dock) not in dock_dict.keys():
-#                row = monthly_data.loc[monthly_data['dock_id'] == dock].iloc[0,:]
-#                dock_dict[str(row['dock_id'])] = {'dock_name': row['dock_name'], 'lat': row['_lat'], 'lon': row['_long']}
-#                
-#    # Save dock_dict after completing each file -> in case the system crashes. 
-#    from general_functions import save_pkl
-#    save_pkl(os.path.join(data_path,'dock_dict.pkl'),dock_dict)
 
